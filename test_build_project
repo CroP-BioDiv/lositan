@@ -1,0 +1,9 @@
+# Build
+./gradlew clean build
+
+# Unzip
+rm -rf ../run/lositan-1.0/
+unzip  -d ../run build/distributions/lositan-1.0.zip
+
+# Run
+../run/lositan-1.0/lositan
