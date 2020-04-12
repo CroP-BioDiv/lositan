@@ -89,28 +89,27 @@ class Split(object):
     def release(self):
         self.async.access_ds.release()
 
-    #You can only run a ftemp case at a time
-    def run_ftemp(self, npops, ne, sample_size, gens_sample,
-            num_sims = 20000, data_dir='.'):
+    # You can only run a ftemp case at a time
+    def run_ftemp(self, npops, ne, sample_size, gens_sample, num_sims=20000, data_dir='.'):
         num_parts = num_sims/self.split_size
         self.parts = {}
         self.data_dir = data_dir
         for directory in range(num_parts):
-           full_path = data_dir + os.sep + str(directory)
-           try:
-               os.mkdir(full_path)
-           except OSError:
-               pass #Its ok, if it is already there
-           if "ss_file" in os.listdir(data_dir):
-               shutil.copy(data_dir + os.sep + "ss_file", full_path)
-           id = self.async.run_program('ftemp', {
-               'npops'       : npops,
-               'ne'          : ne,
-               'sample_size' : sample_size,
-               'gens_sample' : gens_sample,
-               'num_sims'    : self.split_size,
-               'data_dir'    : full_path,
-           }, {})
-           self.parts[id] = full_path
+            full_path = data_dir + os.sep + str(directory)
+            try:
+                os.mkdir(full_path)
+            except OSError:
+                pass  # Its ok, if it is already there
+            if "ss_file" in os.listdir(data_dir):
+                shutil.copy(data_dir + os.sep + "ss_file", full_path)
+            id = self.async.run_program('ftemp', {
+               'npops': npops,
+               'ne': ne,
+               'sample_size': sample_size,
+               'gens_sample': gens_sample,
+               'num_sims': self.split_size,
+               'data_dir': full_path,
+            }, {})
+            self.parts[id] = full_path
         thread.start_new_thread(self.monitor, ())
 

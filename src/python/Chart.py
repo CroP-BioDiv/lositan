@@ -177,8 +177,8 @@ class Chart(JPanel):
         if self.drawCI:
             dataset = YIntervalSeriesCollection()
             CIRenderer = DeviationRenderer(True, False)
-            #CIRenderer.setOutline(True)
-            #CIRenderer.setRoundXCoordinates(True)
+            # CIRenderer.setOutline(True)
+            # CIRenderer.setRoundXCoordinates(True)
             dataset.addSeries(self.bottom)
             dataset.addSeries(self.top)
             dataset.addSeries(self.limit)
@@ -191,9 +191,10 @@ class Chart(JPanel):
             plot.setDataset(1, dataset)
             plot.setRenderer(1, CIRenderer)
         plot.setDataset(1, dataset)
-        if drawLabels: self.drawLabels()
+        if drawLabels:
+            self.drawLabels()
 
-    def resetData(self, justAnnots = False):
+    def resetData(self, justAnnots=False):
         if not justAnnots:
             self.markers = XYSeries("Markers")
         self.drawCI = False
@@ -204,10 +205,10 @@ class Chart(JPanel):
 
     def save(self, parent, format):
         chooser = JFileChooser()
-        #filter = FileNameExtensionFilter(
-        #    format + " files",
-        #    array([format, format.lower()], String))
-        #chooser.setFileFilter(filter);
+        # filter = FileNameExtensionFilter(
+        #     format + " files",
+        #     array([format, format.lower()], String))
+        # chooser.setFileFilter(filter);
         returnVal = chooser.showSaveDialog(parent)
         if returnVal == JFileChooser.APPROVE_OPTION:
             fileName = chooser.getSelectedFile().getPath()

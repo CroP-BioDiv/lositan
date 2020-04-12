@@ -22,6 +22,7 @@ def getExt():
 
 
 def compile(directory):
+    print 'xxx', directory
     osName = System.getProperty('os.name').lower()
     if osName.find('windows') > -1:
         return

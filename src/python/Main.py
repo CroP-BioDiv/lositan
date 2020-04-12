@@ -40,10 +40,10 @@ import Ftemp
 from temporal import Datacal
 import CPlot
 
-#There are quite a few global variables
+# There are quite a few global variables
 #  This is acceptable because the application won't grow that much
 
-#globals are:
+# globals are:
 #  lpath     - LOSITAN path
 #  dataPath  - Last directory with opened data
 #
@@ -73,8 +73,9 @@ import CPlot
 #  menuHandles     - Menu handles (hash)
 #  loadPanel       - loci count
 
-def enableAllMenus(also5000 = False):
-    #if also5000 then Runninng extra  5000 sims is also enabled
+
+def enableAllMenus(also5000=False):
+    # if also5000 then Runninng extra  5000 sims is also enabled
     global menuHandles
     for name, handle in menuHandles.items():
         if (not name == 'item5000' and not name == 'checkLoci') or also5000:
@@ -82,39 +83,42 @@ def enableAllMenus(also5000 = False):
         else:
             handle.setEnabled(False)
 
+
 def disableAllMenus():
     global menuHandles
     for name, handle in menuHandles.items():
         handle.setEnabled(False)
 
+
 def updateAll():
-    global rec2, selRec2, popNames, remPops, remLoci, locusFst #,rec
+    global rec2, selRec2, popNames, remPops, remLoci, locusFst  # ,rec
     global summPanel, empiricalPanel, frame
-    global myFst, maxRun, minRun # This is really a private var to be reused on report
+    global myFst, maxRun, minRun  # This is really a private var to be reused on report
     empiricalPanel.ignoreChanges = True
-    myFst  = -1
+    myFst = -1
     maxRun = -1
     minRun = -1
     selRec2 = FileParser.read(rec2.fname)
-    #print rec2.fname, countPops(rec2)
-    #for locus in remLoci:
+    # print rec2.fname, countPops(rec2)
+    # for locus in remLoci:
     selRec2.remove_loci_by_name(remLoci, lpath + os.sep + "sr.tmp")
     shutil.copyfile(lpath + os.sep + "sr.tmp",
                     lpath + os.sep + "sr")
     selRec2 = FileParser.read(lpath + os.sep + "sr")
 
-    #print len(popNames), remPops
+    # print len(popNames), remPops
     for i in range(len(popNames)-1, -1, -1):
-        #print i, popNames[i]
+        # print i, popNames[i]
         if popNames[i] in remPops:
             selRec2.remove_population(i, lpath + os.sep + "sr.tmp")
             shutil.copyfile(lpath + os.sep + "sr.tmp",
                             lpath + os.sep + "sr")
             selRec2 = FileParser.read(lpath + os.sep + "sr")
-            #print i, os.path.getsize(lpath + os.sep + "sr"), countPops(selRec2)
+            # print i, os.path.getsize(lpath + os.sep + "sr"), countPops(selRec2)
     summPanel.update(rec2, popNames, remPops, remLoci)
     enableAllMenus()
     empiricalPanel.setTotalPops(len(popNames))
+
     def after():
         chartPanel.setMarkers(locusFst)
         chartPanel.updateChartDataset()
@@ -122,12 +126,14 @@ def updateAll():
         empiricalPanel.ignoreChanges = False
     runDatacal(after)
 
+
 def countPops(rec2):
     f2 = FileParser.read(rec2.fname)
     pop = 1
     while f2.skip_population():
         pop += 1
     return pop
+
 
 def checkAlleles(file):
     df = FileParser.read(file)
@@ -140,31 +146,34 @@ def checkAlleles(file):
             name, loci = indiv
             for l in range(len(loci)):
                 for a in loci[l]:
-                    if a: countAlleles[l].add(a)
+                    if a:
+                        countAlleles[l].add(a)
         indiv = df.get_individual()
     probLoci = []
     for l in range(len(countAlleles)):
-        if len(countAlleles[l])>2:
+        if len(countAlleles[l]) > 2:
             probLoci.append(df.loci_list[l])
     if probLoci != []:
-        if len(probLoci)>5:
+        if len(probLoci) > 5:
             error(frame, "Many (%d) loci have more than 2 alleles" % (len(probLoci)))
         else:
             error(frame, "Some loci have more than 2 alleles: %s" % (str(probLoci)))
 
+
 def loadGenePop(file):
-    global rec2, popNames, remPops, remLoci #,rec
-    #rec = GenePop.read(open(str(file)))
+    global rec2, popNames, remPops, remLoci  # ,rec
+    # rec = GenePop.read(open(str(file)))
     try:
         rec2 = FileParser.read(file)
         if isDominant:
             checkAlleles(file)
         remPops = []
         remLoci = []
-        #popNames = ['pop' + str(i+1) for i in range(len(rec.populations))]
+        # popNames = ['pop' + str(i+1) for i in range(len(rec.populations))]
         popNames = ['pop' + str(i+1) for i in range(countPops(rec2))]
     except:
         error(frame, "Not a genepop file!")
+
 
 def chooseFile():
     global frame, dataPath
@@ -191,6 +200,7 @@ def chooseFile():
             return
     updateAll()
     enablePanel(empiricalPanel)
+
 
 def loadFilePopNames(file):
     global popNames, remPops
@@ -226,11 +236,14 @@ def loadTemporal(fname):
         l = f.readline()
     f.close()
     if i != len(popNames):
-        error(frame, "Number of temporal samples (%d) is less than the number of time points specified (%d)" % (i, len(popNames)))
+        error(frame,
+              "Number of temporal samples (%d) is less than the number of time points specified (%d)" %
+              (i, len(popNames)))
         return False
     else:
         info(frame, "Temporal points set at: %s" % str(tempSamples))
         return True
+
 
 def loadPopNames():
     global frame, empiricalPanel
@@ -241,6 +254,7 @@ def loadPopNames():
         loadFilePopNames(file)
         updateAll()
         enablePanel(empiricalPanel)
+
 
 def useExampleData():
     global empiricalPanel, systemPanel, chartPanel, isDominant, isTemporal
@@ -259,15 +273,17 @@ def useExampleData():
     updateAll()
     enablePanel(empiricalPanel)
 
+
 def updatePopNames(popList):
     global popNames
     popNames = popList
 
+
 def editPopNames():
     global popNames
-    etl = EditTextList(frame, 'Change Population Names',
-         popNames, updatePopNames)
+    etl = EditTextList(frame, 'Change Population Names', popNames, updatePopNames)
     etl.show()
+
 
 def savePopNames():
     global frame
@@ -297,16 +313,19 @@ def updateLoci(elementSel, elementRem):
     remLoci = elementRem
     updateAll()
 
+
 def updatePops(elementSel, elementRem):
     global remPops
     remPops = elementRem
     updateAll()
+
 
 def createInfile(fdf):
     f = open(lpath + os.sep + 'infile', 'w')
     print(fdf.num_loci)
     f.write(str(fdf))
     f.close()
+
 
 def update_load_status(curr):
     global loadPanel
@@ -318,18 +337,19 @@ def runDatacal(after):
     loadPanel = LoadDialog(frame, "Load Status")
     thread.start_new_thread(endRunDatacal, (after,))
 
+
 def endRunDatacal(after):
     global fdc, selRec2, sampSize, locusFst, lpath
     global empiricalPanel, isDominant, systemPanel
     global tempSamples, isTemporal
-    #createInfile(convert_genepop_to_fdist(selRec2))
+    # createInfile(convert_genepop_to_fdist(selRec2))
     createInfile(convert_genepop_to_fdist(selRec2, update_load_status))
 
     if isDominant:
         crit = empiricalPanel.getCrit()
         beta = empiricalPanel.getBeta()
         fst, sampSize, loci, pops, F, obs = fdc.run_datacal(
-            data_dir = lpath, version = 2,
+            data_dir=lpath, version=2,
             crit_freq=crit, p=0.5, beta=beta)
     elif isTemporal:
         dc = Datacal()
@@ -338,7 +358,7 @@ def endRunDatacal(after):
         dc.computeNe(tempSamples[-1] - tempSamples[0])
         ne = dc.getNe()
     else:
-        fst, sampSize = fdc.run_datacal(data_dir = lpath)
+        fst, sampSize = fdc.run_datacal(data_dir=lpath)
         print(fst, sampSize)
     if not isTemporal:
         if fst < 0.0:
@@ -388,9 +408,9 @@ def endRunDatacal(after):
         empiricalPanel.setFst(fst)
     empiricalPanel.setSampleSize(sampSize)
     if isTemporal:
-       info (frame, "Dataset Ne: %d" % int(ne))
+        info(frame, "Dataset Ne: %d" % int(ne))
     else:
-       info (frame, "Dataset Fst: %f" % fst)
+        info(frame, "Dataset Fst: %f" % fst)
     after()
     loadPanel.dispose()
 
@@ -401,8 +421,9 @@ def getSelLoci(pv):
     selLoci = []
     ci = 1.0 - systemPanel.getCI()
     currPos = 0
+
     def getP(pvLine):
-        #there is a copy of this on selPanel
+        # there is a copy of this on selPanel
         if isDominant:
             p1 = pvLine[2]
             p2 = pvLine[3]
@@ -414,16 +435,17 @@ def getSelLoci(pv):
     for i in range(len(selRec2.loci_list)):
         if not locusFst[i]:
             continue
-        #print pv[currPos], ci
+        # print pv[currPos], ci
         p = getP(pv[currPos])
         if p < ci/2 or p > 1.0 - ci/2:
-            #print i
+            # print i
             selLoci.append(selRec2.loci_list[i])
         currPos += 1
     return selLoci
 
+
 def getMut(mutStr):
-    #print mutStr
+    # print mutStr
     if mutStr == 'Infinite Alleles':
         return 0
     else:
@@ -444,7 +466,7 @@ def changeChartCI(changeNotes=True):
     oldX = -1
     for group in confLines:
         if oldX == float(group[0]):
-            continue #strange but possible
+            continue  # strange but possible
         oldX = float(group[0])
         if not isDominant:
             top.append((float(group[0]), float(group[3])))
@@ -456,24 +478,25 @@ def changeChartCI(changeNotes=True):
             bottom.append((float(group[0]), float(group[2])))
 
     chartPanel.setBottom(bottom)
-    #chartPanel.setAvg(avg)
+    # chartPanel.setAvg(avg)
     chartPanel.setTop(top)
     chartPanel.updateChartDataset(False)
     if changeNotes:
         if isDominant:
-            pv = fdc.run_pv(data_dir =  lpath, version=2)
+            pv = fdc.run_pv(data_dir=lpath, version=2)
         else:
-            pv = fdc.run_pv(data_dir =  lpath, version=1)
+            pv = fdc.run_pv(data_dir=lpath, version=1)
         selLoci = getSelLoci(pv)
         chartPanel.setSelLoci(pv, selRec2.loci_list, selLoci)
     return confLines
+
 
 def report(fst):
     global numAttempts
     global fda, fdc, fdRequest, runState, selRec2, splitSize
     global chartPanel, simsDonePanel, systemPanel, empiricalPanel
     global empiricalPanel, menuHandles, statusPanel, frame
-    global myFst, maxRun, minRun # This is really a private var to be reused
+    global myFst, maxRun, minRun  # This is really a private var to be reused
     global isTemporal, tempSamples, fdt
     if isTemporal:
         fdt.acquire()
@@ -495,17 +518,16 @@ def report(fst):
     else:
         desiredFst = empiricalPanel.getFst()
     if simsDonePanel.getRange() == simsDonePanel.getValue():
-        #print runState
+        # print runState
         if isTemporal:
             fdt.release()  # We are the last one, this is safe
         else:
             fda.release()  # We are the last one, this is safe
         if runState == 'ForceBeforeNeutral' or runState == 'Force':
-            os.remove(lpath + os.sep + 'out.dat') #careful, not for 5000 case
-            #print "max", maxRun, "min", minRun
-            nextFst, maxRun, minRun = approximate_fst(desiredFst, fst, myFst,
-                maxRun, minRun)
-            #print "obtained", fst, "desired", desiredFst, "next", nextFst, "max", maxRun, "min", minRun
+            os.remove(lpath + os.sep + 'out.dat')  # careful, not for 5000 case
+            # print "max", maxRun, "min", minRun
+            nextFst, maxRun, minRun = approximate_fst(desiredFst, fst, myFst, maxRun, minRun)
+            # print "obtained", fst, "desired", desiredFst, "next", nextFst, "max", maxRun, "min", minRun
             numAttempts += 1
             if nextFst == myFst or numAttempts == 20:
                 numSims = systemPanel.getNumSims()
@@ -516,8 +538,9 @@ def report(fst):
                     runState = 'Neutral'
                     statusPanel.setStatus('Simulation pass to determine initial neutral set', Color.CYAN)
             else:
-                statusPanel.setStatus('Forcing correct mean Fst, current error is ' +
-                                str(round(abs(fst - desiredFst), 3)), Color.RED)
+                statusPanel.setStatus(
+                    'Forcing correct mean Fst, current error is ' + str(round(abs(fst - desiredFst), 3)),
+                    Color.RED)
                 numSims = 50000
                 myFst = nextFst
             npops = empiricalPanel.getTotalPops()
@@ -534,34 +557,33 @@ def report(fst):
                 mutStr = empiricalPanel.mut.getSelectedItem()
                 mut = getMut(mutStr)
             if isTemporal:
-                pass #XXX
+                pass  # XXX
             else:
                 runFDistPart(False, selRec2, mut, numSims, npops, nsamples,
-                    myFst, sampSize, theta, beta, crit, numCores)
+                             myFst, sampSize, theta, beta, crit, numCores)
         elif runState == 'Neutral':
             maxRun = -1
             minRun = -1
-            myFst  = -1
+            myFst = -1
             if isDominant:
-                pv = fdc.run_pv(data_dir =  lpath, version=2)
+                pv = fdc.run_pv(data_dir=lpath, version=2)
             else:
-                pv = fdc.run_pv(data_dir =  lpath, version=1)
-            #pv = get_pv(data_dir = lpath)
+                pv = fdc.run_pv(data_dir=lpath, version=1)
+            # pv = get_pv(data_dir = lpath)
             selLoci = getSelLoci(pv)
             if fdRequest == 'Neutral':
                 runState = 'Final'
-                numSims  = systemPanel.getNumSims()
+                numSims = systemPanel.getNumSims()
                 statusPanel.setStatus('Running final simulation', Color.YELLOW)
             else:
                 runState = 'Force'
                 numAttempts = 0
                 statusPanel.setStatus('Forcing correct mean Fst for final pass', Color.RED)
-                numSims  = 50000
+                numSims = 50000
             neutralRec = FileParser.read(selRec2.fname)
-            #for locus in selLoci:
+            # for locus in selLoci:
             neutralRec.remove_loci_by_name(selLoci, lpath+os.sep+"nr.tmp")
-            shutil.copyfile(lpath + os.sep + "nr.tmp",
-                    lpath + os.sep + "nr")
+            shutil.copyfile(lpath + os.sep + "nr.tmp", lpath + os.sep + "nr")
             neutralRec = FileParser.read(lpath + os.sep + "nr")
             createInfile(convert_genepop_to_fdist(neutralRec))
             if isTemporal:
@@ -573,14 +595,13 @@ def report(fst):
                 crit = empiricalPanel.getCrit()
                 beta = empiricalPanel.getBeta()
                 myFst, _sampSize, _loci, _pops, _F, _obs = \
-                    fdc.run_datacal(data_dir = lpath,
-                    version=2, crit_freq=crit, p=0.5, beta=beta)
+                    fdc.run_datacal(data_dir=lpath, version=2, crit_freq=crit, p=0.5, beta=beta)
             else:
-                myFst, _sampSize = fdc.run_datacal(data_dir = lpath)
-            #if myFst < 0.005:
-            #    myFst = 0.005
+                myFst, _sampSize = fdc.run_datacal(data_dir=lpath)
+            # if myFst < 0.005:
+            #     myFst = 0.005
             if isTemporal:
-                empiricalPanel.setNe(myNe) #actually it is Ne
+                empiricalPanel.setNe(myNe)  # actually it is Ne
             else:
                 empiricalPanel.setFst(myFst)
                 if not isDominant:
@@ -598,7 +619,7 @@ def report(fst):
                 crit = empiricalPanel.getCrit()
             else:
                 theta = beta = crit = None
-            os.remove(lpath + os.sep + 'out.dat') #careful, not for 5000 case
+            os.remove(lpath + os.sep + 'out.dat')  # careful, not for 5000 case
             createInfile(convert_genepop_to_fdist(selRec2))
             if isTemporal:
                 dc = Datacal()
@@ -607,30 +628,28 @@ def report(fst):
                 ne = dc.getNe()
             elif isDominant:
                 _fst, _sampSize, _loci, _pops, _F, _obs = \
-                    fdc.run_datacal(data_dir = lpath, version=2,
-                        crit_freq = crit, p=0.5, beta=beta)
+                    fdc.run_datacal(data_dir=lpath, version=2, crit_freq=crit, p=0.5, beta=beta)
             else:
-                _fst, _sampSize = fdc.run_datacal(data_dir = lpath)
+                _fst, _sampSize = fdc.run_datacal(data_dir=lpath)
             if isTemporal:
-                runFtempPart(False, selRec2, numSims, npops, nsamples, ne,
-                    sampSize, numCores)
+                runFtempPart(False, selRec2, numSims, npops, nsamples, ne, sampSize, numCores)
             else:
                 runFDistPart(False, selRec2, mut, numSims, npops, nsamples,
-                    myFst, sampSize, theta, beta, crit, numCores)
+                             myFst, sampSize, theta, beta, crit, numCores)
         elif runState == 'Final':
             maxRun = -1
             minRun = -1
-            myFst  = -1
+            myFst = -1
             statusPanel.setStatus('Done (preparing selection table, please wait...)', Color.GRAY)
             if isDominant:
-                pv = fdc.run_pv(data_dir =  lpath, version=2)
+                pv = fdc.run_pv(data_dir=lpath, version=2)
             else:
-                pv = fdc.run_pv(data_dir =  lpath, version=1)
+                pv = fdc.run_pv(data_dir=lpath, version=1)
             selLoci = getSelLoci(pv)
             chartPanel.setSelLoci(pv, selRec2.loci_list, selLoci)
             sp = SelPanel(frame, chartPanel, selRec2.loci_list, pv,
-                    systemPanel.getCI(), confLines, locusFst, isDominant,
-                    systemPanel.getFDR())
+                          systemPanel.getCI(), confLines, locusFst, isDominant,
+                          systemPanel.getFDR())
             if isTemporal:
                 info(frame, "Done")
             else:
@@ -646,6 +665,7 @@ def report(fst):
             fdt.release()
         else:
             fda.release()
+
 
 def cancelFDist():
     global empiricalPanel, systemPanel, statusPanel, frame
@@ -681,7 +701,7 @@ def runFDist(more=False):
     chartPanel.resetData(True)
     try:
         if not more:
-            os.remove(lpath + os.sep + 'out.dat') # careful, not for 5000 case
+            os.remove(lpath + os.sep + 'out.dat')  # careful, not for 5000 case
     except OSError:
         pass  # Its ok if it doesn't exist
     disableAllMenus()
@@ -692,10 +712,12 @@ def runFDist(more=False):
     if nsamples > npops:
         error(frame, "Expected total populations lower then selected populations")
         return
+    #
     if isTemporal:
         ne = empiricalPanel.getNe()
     else:
         fst = empiricalPanel.getFst()
+    #
     if not isTemporal and not isDominant:
         mutStr = empiricalPanel.mut.getSelectedItem()
         mut = getMut(mutStr)
@@ -722,40 +744,39 @@ def runFDist(more=False):
         if neutral and force:
             statusPanel.setStatus('Forcing correct mean Fst for first pass', Color.RED)
             fdRequest = 'NeuFor'
-            runState  = 'ForceBeforeNeutral'
+            runState = 'ForceBeforeNeutral'
             numAttempts = 0
-            numSims   = 50000
+            numSims = 50000
         elif neutral:
             statusPanel.setStatus('First simulation pass to determine initial neutral set', Color.CYAN)
             fdRequest = 'Neutral'
-            runState  = 'Neutral'
+            runState = 'Neutral'
         elif force:
             statusPanel.setStatus('Forcing correct mean Fst for final simulation', Color.RED)
             fdRequest = 'Force'
-            runState  = 'Force'
+            runState = 'Force'
             numAttempts = 0
-            numSims   = 50000
+            numSims = 50000
         else:
             statusPanel.setStatus('Running simulation', Color.YELLOW)
             fdRequest = ''
-            runState  = 'Final'
+            runState = 'Final'
     else:
         fdRequest = ''
-        runState  = 'Final'
+        runState = 'Final'
     if isTemporal:
-        runFtempPart(more, selRec2, numSims, npops, nsamples, ne,
-            sampSize, numCores)
+        runFtempPart(more, selRec2, numSims, npops, nsamples, ne, sampSize, numCores)
     else:
         runFDistPart(more, selRec2, mut, numSims, npops, nsamples, fst,
-            sampSize, theta, beta, crit, numCores)
+                     sampSize, theta, beta, crit, numCores)
 
-def runFtempPart(more, selRec2, numSims, npops, nsamples, ne,
-        sampSize, numCores):
+
+def runFtempPart(more, selRec2, numSims, npops, nsamples, ne, sampSize, numCores):
     global fdt, tempSamples
     global chartPanel, simsDonePanel
     global splitSize
     splitSize = max([500, numSims/(numCores*10)])
-    #print splitSize
+    # print splitSize
     fdt = Ftemp.Split(report, numCores, splitSize, '..')
     if more:
         oldRange = simsDonePanel.getValue() #range = value when done
@@ -766,31 +787,30 @@ def runFtempPart(more, selRec2, numSims, npops, nsamples, ne,
         simsDonePanel.setValue(0)
     fdt.run_ftemp(npops, ne, sampSize, tempSamples, numSims, lpath)
 
-def runFDistPart(more, selRec2, mut, numSims, npops,
-        nsamples, fst, sampSize, theta, beta, crit, numCores):
+
+def runFDistPart(more, selRec2, mut, numSims, npops, nsamples, fst, sampSize, theta, beta, crit, numCores):
     global fda, isDominant
     global chartPanel, simsDonePanel
     global splitSize
-    #createInfile(convert_genepop_to_fdist(selRec2))
-    #print npops, nsamples, fst, sampSize, mut, numSims
+    # createInfile(convert_genepop_to_fdist(selRec2))
+    # print npops, nsamples, fst, sampSize, mut, numSims
     ext = FDistExtra.getExt()
     splitSize = max([500, numSims/(numCores*10)])
-    #print splitSize
+    # print splitSize
     fda = Async.SplitFDist(report, numCores, splitSize, '..', ext)
-    #Fdist directory is an hack, we know it is above the data dir
+    # Fdist directory is an hack, we know it is above the data dir
     if more:
-        oldRange = simsDonePanel.getValue() #range = value when done
+        oldRange = simsDonePanel.getValue()  # range = value when done
         simsDonePanel.setRange(oldRange + numSims / 1000)
         simsDonePanel.setValue(oldRange)
     else:
         simsDonePanel.setRange(numSims / 1000)
         simsDonePanel.setValue(0)
     if isDominant:
-        fda.run_fdist(npops, nsamples, fst, sampSize, mut, numSims, lpath,
-            True, theta, beta, crit)
+        fda.run_fdist(npops, nsamples, fst, sampSize, mut, numSims, lpath, True, theta, beta, crit)
     else:
-        fda.run_fdist(npops, nsamples, fst, sampSize,
-            mut, numSims, lpath)
+        fda.run_fdist(npops, nsamples, fst, sampSize, mut, numSims, lpath)
+
 
 def getChartConf(chart):
     global chartPanel
@@ -802,6 +822,7 @@ def getChartConf(chart):
     chartPanel.labelNeutral = chart.getNeuLabel()
     chartPanel.updateChartDataset()
 
+
 def configChart():
     global chartPanel, frame
     cc = ChartConf(
@@ -810,18 +831,20 @@ def configChart():
         getChartConf)
     cc.show()
 
+
 def checkLoci():
     global chartPanel, selRec2, systemPanel, fdc, isDominant, locusFst
     if isDominant:
-        pv = fdc.run_pv(data_dir =  lpath, version=2)
+        pv = fdc.run_pv(data_dir=lpath, version=2)
         confLines = fdc.run_cplot(systemPanel.getCI(), lpath, version=2)
     else:
-        pv = fdc.run_pv(data_dir =  lpath, version=1)
+        pv = fdc.run_pv(data_dir=lpath, version=1)
         confLines = fdc.run_cplot(systemPanel.getCI(), lpath)
     sp = SelPanel(frame, chartPanel, selRec2.loci_list, pv,
-         systemPanel.getCI(), confLines, locusFst, isDominant,
-         systemPanel.getFDR())
+                  systemPanel.getCI(), confLines, locusFst, isDominant,
+                  systemPanel.getFDR())
     sp.show()
+
 
 def displayCitation():
     if isTemporal:
@@ -848,13 +871,14 @@ Tiago Antao, Ana Lopes, Ricardo J Lopes, Albano Beja-Pereira, Gordon Luikart
 BMC Bioinformatics 2008, 9:323
     """)
 
+
 class doAction(ActionListener):
     def actionPerformed(self, event):
         global frame, chartPanel
-        global popNames, rec2, remLoci, remPops #, rec
+        global popNames, rec2, remLoci, remPops  # , rec
         global isDominant
         option = event.getActionCommand()
-        #print option
+        # print option
         if option == 'Open':
             chooseFile()
         elif option == 'LoadPop':
@@ -871,15 +895,13 @@ class doAction(ActionListener):
             selLoci = rec2.loci_list[:]
             for locus in remLoci:
                 selLoci.remove(locus)
-            rd = RestrictionDialog(frame, 'Choose loci',
-                selLoci, remLoci, updateLoci)
+            rd = RestrictionDialog(frame, 'Choose loci', selLoci, remLoci, updateLoci)
             rd.show()
         elif option == 'ChoosePops':
             selPops = popNames[:]
             for pop in remPops:
                 selPops.remove(pop)
-            rd = RestrictionDialog(frame, 'Choose Populations',
-                selPops, remPops, updatePops)
+            rd = RestrictionDialog(frame, 'Choose Populations', selPops, remPops, updatePops)
             rd.show()
         elif option == 'RunFDist':
             runFDist()
@@ -905,14 +927,14 @@ class doAction(ActionListener):
         elif option == 'Exit':
             sys.exit(-1)
 
+
 def createParametersPanel(manager):
     global systemPanel, menuHandles, isTemporal
     systemPanel = SystemPanel(changeChartCI, isTemporal)
     global summPanel
     summPanel = SummPanel(isTemporal)
     global empiricalPanel, isDominant
-    empiricalPanel = EmpiricalPanel(menuHandles, manager, isDominant,
-            systemPanel, isTemporal)
+    empiricalPanel = EmpiricalPanel(menuHandles, manager, isDominant, systemPanel, isTemporal)
     global simsDonePanel
     simsDonePanel = Meter(300, 120, 10)
     panel = JPanel()
@@ -923,6 +945,7 @@ def createParametersPanel(manager):
     panel.add(simsDonePanel)
     return panel
 
+
 def createChartPanel():
     global chartPanel
     if isDominant:
@@ -931,17 +954,20 @@ def createChartPanel():
         chartPanel = Chart(980, 480, isTemporal)
     return chartPanel
 
+
 def createButton(text, command, manager):
     button = JButton(text)
     button.setActionCommand(command)
     button.addActionListener(manager)
     return button
 
+
 def createMenuItem(text, command, manager):
     mi = JMenuItem(text)
     mi.setActionCommand(command)
     mi.addActionListener(manager)
     return mi
+
 
 def createMenuBar(manager):
     global menuHandles, isDominant, isTemporal
@@ -1023,6 +1049,7 @@ def createMenuBar(manager):
 
     return menuBar
 
+
 def createMenuPanel(manager):
     panel = JPanel()
     panel.setLayout(GridLayout(3, 6))
@@ -1048,37 +1075,40 @@ def createMenuPanel(manager):
     panel.add(JLabel(""))
     return panel
 
+
 def createStatusPanel():
     global statusPanel
     statusPanel = StatusPanel()
     return statusPanel
 
-def disablePanel(panel, exclude = []):
+
+def disablePanel(panel, exclude=[]):
     attrs = dir(panel)
     for attrStr in attrs:
         try:
             attr = getattr(panel, attrStr)
             if isinstance(attr, Component) and \
-                not attrStr.endswith('Ancestor') and \
-                attrStr not in exclude:
+                    not attrStr.endswith('Ancestor') and \
+                    attrStr not in exclude:
                 attr.setEnabled(False)
-        except AttributeError: #Some attributes are write only
+        except AttributeError:  # Some attributes are write only
             pass
-        except TypeError: #Some attributes are write only
+        except TypeError:  # Some attributes are write only
             pass
 
-def enablePanel(panel, exclude = []):
+
+def enablePanel(panel, exclude=[]):
     attrs = dir(panel)
     for attrStr in attrs:
         try:
             attr = getattr(panel, attrStr)
             if isinstance(attr, Component) and \
-                not attrStr.endswith('Ancestor') and \
-                attrStr not in exclude:
+                    not attrStr.endswith('Ancestor') and \
+                    attrStr not in exclude:
                 attr.setEnabled(True)
-        except AttributeError: #Some attributes are write only
+        except AttributeError:  # Some attributes are write only
             pass
-        except TypeError: #Some attributes are write only
+        except TypeError:  # Some attributes are write only
             pass
 
 
@@ -1086,13 +1116,14 @@ def doPrettyType(frame, manager):
     global menuHandles
     frame.setLayout(BorderLayout())
     frame.setJMenuBar(createMenuBar(manager))
-    #disableAllMenus()
-    #menuHandles['File'].setEnabled(True)
-    #frame.add(createMenuPanel(manager), BorderLayout.PAGE_START)
+    # disableAllMenus()
+    # menuHandles['File'].setEnabled(True)
+    # frame.add(createMenuPanel(manager), BorderLayout.PAGE_START)
     frame.add(createStatusPanel(), BorderLayout.PAGE_START)
     frame.add(createChartPanel(), BorderLayout.CENTER)
     frame.add(createParametersPanel(manager), BorderLayout.PAGE_END)
     frame.pack()
+
 
 def createFrame():
     global isDominant
@@ -1109,60 +1140,70 @@ def createFrame():
     frame.setResizable(0)
     return frame
 
+
 def styleApp():
     uiDefaults = UIManager.getDefaults()
     e = uiDefaults.keys()
     while e.hasMoreElements():
-       obj = e.nextElement()
-       if type(obj) == types.StringType:
-           if obj.endswith("background") and \
-              isinstance(uiDefaults.get(obj), Color):
-               if str(obj).startswith('List.'):
-                   uiDefaults.put(obj, Color(240, 240, 240))
-               else:
-                   uiDefaults.put(obj, Color.WHITE)
+        obj = e.nextElement()
+        if isinstance(obj, types.StringType):
+            if obj.endswith("background") and isinstance(uiDefaults.get(obj), Color):
+                if str(obj).startswith('List.'):
+                    uiDefaults.put(obj, Color(240, 240, 240))
+                else:
+                    uiDefaults.put(obj, Color.WHITE)
+
 
 def openDir():
     osName = System.getProperty('os.name').lower()
-    if osName.find('mac os x')>-1:
+    if osName.find('mac os x') > -1:
         os.system('chmod a+rw ' + lpath)
         os.system('chmod a+rw ' + lpath + '*')
 
+
 def prepareFDist():
     global fdc
-    #print lpath
     FDistExtra.compile(lpath)
     ext = FDistExtra.getExt()
     fdc = FDistController('.', ext)
 
+
 global lpath
 global isDominant
-if len(sys.argv)>1:
-    if sys.argv[1] == "temp":
-        isDominant = False
-        isTemporal = True
-    else:
-        isDominant = True
-        isTemporal = False
-else:
-    isDominant = False
-    isTemporal = False
-lpath = None
-if isTemporal:
-    myPath = ".lositemp"
-elif isDominant:
-    myPath = ".mcheza"
-else:
-    myPath = ".lositan"
+# if len(sys.argv) > 1:
+#     if sys.argv[1] == "temp":
+#         isDominant = False
+#         isTemporal = True
+#     else:
+#         isDominant = True
+#         isTemporal = False
+# else:
+#     isDominant = False
+#     isTemporal = False
+
+# lpath = None
+# if isTemporal:
+#     myPath = ".lositemp"
+# elif isDominant:
+#     myPath = ".mcheza"
+# else:
+#     myPath = ".lositan"
+
+# ToDo: We want Mcheza. Right now I don't know how to provide cmd args to python.
+# myPath direcotry is also problematic :-/
+isDominant = True
+isTemporal = False
+myPath = ".lositan"
+
 for path in sys.path:
-    if path.find(myPath) > -1 and path.find("jar") == -1 and \
-            path.find("libs") == -1:
+    if path.find(myPath) > -1 and path.find("jar") == -1 and path.find("libs") == -1:
         lpath = path
-if not lpath: #local mode
+
+if not lpath:  # local mode
     for path in sys.path:
-        if path.find('scratch') > -1 and path.find("jar") == -1 and \
-                path.find("libs") == -1:
+        if path.find('scratch') > -1 and path.find("jar") == -1 and path.find("libs") == -1:
             lpath = path
+
 Locale.setDefault(Locale.US)
 openDir()
 prepareFDist()
